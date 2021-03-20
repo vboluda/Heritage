@@ -15,12 +15,15 @@ contract Heritage {
   uint public blocksToAwait;
   uint public lastUpdateBlock;
 
+  event depositEvnt(address _from, uint _amount, uint _balance); 
+
   constructor(address payable _owner, address payable _heir, uint _awaitto ){
     console.log("Deploying with owner: [%s] heir: [%s] awaitto: %i",_owner,_heir, _awaitto);
     owner=_owner;
     heir=_heir;
     blocksToAwait=_awaitto;
     lastUpdateBlock=block.number;
+    console.log("Block Number: %i",lastUpdateBlock);
   }
  
   modifier restrictedToOwner(address payable _owner) { 
@@ -90,11 +93,13 @@ contract Heritage {
   //FALLBACK
   fallback() external payable {
     console.log("Recibed by fallback", msg.value);
+    emit depositEvnt(msg.sender, msg.value, getBalance());
   }
 
   // TO TRANSFER FUNDS TO THIS CONTRACT. CALL DIRECTLY TO CONTRACT WITH NO FUNCTION
   receive() external payable {
         console.log("Recibed ", msg.value);
+        emit depositEvnt(msg.sender, msg.value, getBalance());
   }
 
   //DESTRUCTOR EN CASE NEEDED. HANDLE WITH CARE!!!

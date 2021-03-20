@@ -61,7 +61,10 @@ describe("Heritage", function() {
       value: funds,
       gasPrice:0
     };
-    await Owner.sendTransaction(tx);
+    await expect(Owner.sendTransaction(tx))
+      .to.emit(instance, 'depositEvnt')
+      .withArgs(owner, funds, funds);
+    ;
     console.log("TX.value "+tx.value);
 
     
@@ -77,7 +80,7 @@ describe("Heritage", function() {
 
   it("Test return funds", async function() {
     const Contract = await ethers.getContractFactory("Heritage");
-    const [Owner, Heir] = await ethers.getSigners()
+    const [Owner, Heir,Third] = await ethers.getSigners()
     owner=await Owner.getAddress();
     heir=await Heir.getAddress();
     funds=BigNumber.from(10000000000);
@@ -112,6 +115,11 @@ describe("Heritage", function() {
     console.log("CURR FUNDS+10 : "+currentFunds.add(diff));
     
     assert(ownerFunds.gt(currentFunds),"Previous balance must be greater than new balance");
+    third=await Third.getAddress();
+    
+    await expect(
+      instance.returnFunds(third,100)
+    ).to.be.revertedWith("Not authorized. Owner is required");
   });
 
   it("Test payto funds", async function() {
@@ -239,7 +247,7 @@ describe("Heritage", function() {
 
     ownerFunds=await Owner.getBalance();
     console.log("**** DESTROY");
-    const instance = await Contract.deploy(owner,heir,2102400);
+    const instance = await Contract.deploy(owner,heir,1000000); 
     
     await instance.deployed();
     console.log("Heir funds : "+(await Heir.getBalance()));
@@ -268,6 +276,30 @@ describe("Heritage", function() {
     console.log("CURR FUNDS+10 : "+currentFunds.add(diff));
     
     assert(ownerFunds.gt(currentFunds),"Previous balance must be greater than new balance");
+  });
+
+  it("Test set factory", async function() {
+    const Contract = await ethers.getContractFactory("Heritage");
+    const [Owner, Heir, Third, Factory] = await ethers.getSigners()
+    owner=await Owner.getAddress();
+    heir=await Heir.getAddress();
+    funds=BigNumber.from(10000000000);
+
+    ownerFunds=await Owner.getBalance();
+    console.log("**** SET FACTORY");
+    const instance = await Contract.deploy(owner,heir,2102400);
+    
+    await instance.deployed();
+    
+    factory=await Factory.getAddress();
+    
+    await instance.setFromFactory(owner,factory);
+    
+    expect(await instance.factory()).equal(factory);
+    await expect(
+      instance.inherit(heir)
+    ).to.be.revertedWith("Not authorized. Only Factory Contract can call this method"); 
+
   });
 
 });
