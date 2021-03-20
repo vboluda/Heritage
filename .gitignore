@@ -1,0 +1,5 @@
+node_modules
+
+#Hardhat files
+blockchain/cache
+blockchain/artifacts
