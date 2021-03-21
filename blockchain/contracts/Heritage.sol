@@ -118,6 +118,6 @@ contract Heritage {
     console.log("Get Balance");
     return address(this).balance;
   }
-
+ 
 
 }
