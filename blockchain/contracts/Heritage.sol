@@ -55,11 +55,10 @@ contract Heritage {
     useFactory=true;
   }
 
-  function inherit(address payable _heir) public 
+  function inherit() public 
   restrictedToFactory 
-  restrictedToHeir(_heir)
   {
-    console.log("Inherit funds [%i] to [%s]",address(this).balance,_heir);
+    console.log("Inherit funds [%i] to [%s]",address(this).balance,heir);
     console.log("Current Block [%i] awaitBlock [%i] lastupdated: [%i]",block.number,blocksToAwait,lastUpdateBlock);
     require((lastUpdateBlock+blocksToAwait)<block.number,
     "Not possible to inherit if global block number has not reached to stated limit");
@@ -67,12 +66,22 @@ contract Heritage {
     require(address(this).balance>0,
     "Contract has no funds. Either has not been funded or has been previously inherited");
     uint amount=getBalance();
-    _heir.transfer(amount);
+    heir.transfer(amount);
+  }
+
+  function update(address payable _owner) public restrictedToOwner(_owner){
+    lastUpdateBlock=block.number;
+    console.log("New Current Block [%i]",lastUpdateBlock);
+  }
+
+  function changeHair(address payable _owner,address payable _newHeir) public  restrictedToOwner(_owner){
+    heir=_newHeir;
   }
 
   function returnFunds(address payable _owner, uint amount) 
   public restrictedToFactory restrictedToOwner(_owner){
     console.log("ReturnFunds %i",amount);
+    update(_owner);
     lastUpdateBlock=block.number;
     require(amount <= getBalance(),
     "not enought funds");
@@ -83,6 +92,7 @@ contract Heritage {
   function payto(address payable _owner, address payable _to, uint amount)
   public restrictedToFactory restrictedToOwner(_owner){
     console.log("PayTo [%s] value: %i",_to,amount);
+    update(_owner);
     lastUpdateBlock=block.number;
     require(amount <= getBalance(),
     "not enought funds");

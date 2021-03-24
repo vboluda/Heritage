@@ -43,11 +43,62 @@ contract HeritageFactory{
       return info.heritageContract;
     }
 
+    //FALLBACK
+    fallback() external payable {
+      console.log("Recibed by fallback", msg.value);
+    }
+
+    // TO TRANSFER FUNDS TO THIS CONTRACT. CALL DIRECTLY TO CONTRACT WITH NO FUNCTION
+    receive() external payable {
+      console.log("Factory Recibed ", msg.value);
+        address payable sender=msg.sender;
+        HeritageInfo memory info=heritageReferences[sender];
+        require(info.lastUpdatedBlock>0,"Sender has no asigned contract");
+        (bool success, bytes memory data)=info.heritageContract.call{value:msg.value}("");
+        if(!success) revert("Cannot send fund to contract");
+    }
+
     // GETTER FOR CONTRACT BALANCE
   function getBalance()  public view returns(uint)
   {
     console.log("Get Balance");
     return address(heritageReferences[msg.sender].heritageContract).balance;
+  }
+
+  function update() public {
+    address payable sender=msg.sender;
+    HeritageInfo memory info=heritageReferences[sender];
+    require(info.lastUpdatedBlock>0,"Sender has no asigned contract");
+    Heritage(info.heritageContract).update(sender);
+  }
+
+  function changeHair(address payable _newHeir) public {
+     address payable sender=msg.sender;
+    HeritageInfo memory info=heritageReferences[sender];
+    require(info.lastUpdatedBlock>0,"Sender has no asigned contract");
+    Heritage(info.heritageContract).changeHair(sender,_newHeir);
+  }
+
+  function getLastUpdateBlock() public view returns (uint){
+    address payable sender=msg.sender;
+    HeritageInfo memory info=heritageReferences[sender];
+    require(info.lastUpdatedBlock>0,"Sender has no asigned contract");
+    uint lastBlock=Heritage(info.heritageContract).lastUpdateBlock();
+    return lastBlock;
+  }
+
+  function inherit(address payable _sender) public {
+    address payable sender=_sender;
+    HeritageInfo memory info=heritageReferences[sender];
+    require(info.lastUpdatedBlock>0,"Sender has no asigned contract");
+    Heritage(info.heritageContract).inherit();
+  }
+
+  function returnFunds(uint _amount) public {
+    address payable sender=msg.sender;
+    HeritageInfo memory info=heritageReferences[sender];
+    require(info.lastUpdatedBlock>0,"Sender has no asigned contract");
+    Heritage(info.heritageContract).returnFunds(msg.sender,_amount);
   }
 
 

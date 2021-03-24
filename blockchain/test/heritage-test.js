@@ -16,15 +16,20 @@ describe("Heritage", function() {
 
   it("Should retrive HEIR", async function() {
     const Contract = await ethers.getContractFactory("Heritage");
-    const [Owner, Heir] = await ethers.getSigners()
+    const [Owner, Heir,NewHair] = await ethers.getSigners()
     owner=await Owner.getAddress();
     heir=await Heir.getAddress();
+    newHair=await NewHair.getAddress();
     console.log("OWNER: [%s] HEIR: [%s] ",owner,heir)
     const instance = await Contract.deploy(owner,heir,2102400);
     
     await instance.deployed();
 
     expect(await instance.heir()).equal(heir);
+
+    await instance.changeHair(owner,newHair);
+    expect(await instance.heir()).equal(newHair);
+
   });
 
   it("Should retrive BlocksToWait", async function() {
@@ -38,6 +43,22 @@ describe("Heritage", function() {
     await instance.deployed();
 
     expect(await instance.blocksToAwait()).equal(""+2102400);
+  });
+
+  it("Should update currentBlock", async function() {
+    const Contract = await ethers.getContractFactory("Heritage");
+    const [Owner, Heir] = await ethers.getSigners()
+    owner=await Owner.getAddress();
+    heir=await Heir.getAddress();
+    console.log("OWNER: [%s] HEIR: [%s] ",owner,heir)
+    const instance = await Contract.deploy(owner,heir,2102400);
+    
+    await instance.deployed();
+
+    oldBlock=await instance.lastUpdateBlock();
+    await instance.update(owner);
+    newBlock=await instance.lastUpdateBlock();
+    expect(newBlock).gt(oldBlock);
   });
 
   it("Test Balance", async function() {
@@ -177,7 +198,7 @@ describe("Heritage", function() {
     expect(await instance.getBalance()).equal(""+funds);
 
     n1=await Heir.getBalance();
-    await instance.inherit(heir);
+    await instance.inherit();
     n2=await Heir.getBalance();
     expect(await instance.getBalance()).equal("0");
   });
@@ -206,7 +227,7 @@ describe("Heritage", function() {
     expect(await instance.getBalance()).equal(""+funds);
 
     await expect(
-      instance.inherit(heir)
+      instance.inherit()
     ).to.be.revertedWith("Not possible to inherit if global block number has not reached to stated limit");
   });
   
@@ -234,7 +255,7 @@ describe("Heritage", function() {
     expect(await instance.getBalance()).equal("0");
     console.log("Current contract balance: "+await instance.getBalance());
     await expect(
-      instance.inherit(heir)
+      instance.inherit()
     ).to.be.revertedWith("Contract has no funds. Either has not been funded or has been previously inherited"); 
   });
 
@@ -297,7 +318,7 @@ describe("Heritage", function() {
     
     expect(await instance.factory()).equal(factory);
     await expect(
-      instance.inherit(heir)
+      instance.inherit()
     ).to.be.revertedWith("Not authorized. Only Factory Contract can call this method"); 
 
   });
