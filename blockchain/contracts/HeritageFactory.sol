@@ -73,7 +73,7 @@ contract HeritageFactory{
   }
 
   function changeHair(address payable _newHeir) public {
-     address payable sender=msg.sender;
+    address payable sender=msg.sender;
     HeritageInfo memory info=heritageReferences[sender];
     require(info.lastUpdatedBlock>0,"Sender has no asigned contract");
     Heritage(info.heritageContract).changeHair(sender,_newHeir);

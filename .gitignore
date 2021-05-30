@@ -1,4 +1,5 @@
 node_modules
+HeritageFactory.def
 
 #Hardhat files
 blockchain/cache
