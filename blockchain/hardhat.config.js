@@ -23,6 +23,12 @@ module.exports = {
       chainId:20210306,
       gas:"auto",
       url:"http://127.0.0.1:8118"
+    },
+    rinkeby:{
+      chainId:4,
+      gas:"auto",
+      gasPrice:4*1000000000,
+      url:"http://127.0.0.1:8545"
     }
   }
 };

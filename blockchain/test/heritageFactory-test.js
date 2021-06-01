@@ -26,7 +26,7 @@ describe("HeritageFactory", function() {
     await instance.deployed();
     await instance.createNewHeritageContract(heir,2102400);
     
-    expect(await instance.getBalance()).equal("0");
+    expect(await instance.getBalance(owner)).equal("0");
   });
 
   it("Should update", async function() {
@@ -58,14 +58,14 @@ describe("HeritageFactory", function() {
     await instance.deployed();
     await instance.createNewHeritageContract(heir,2102400);
 
-    expect(await instance.getBalance()).equal(""+0);
+    expect(await instance.getBalance(owner)).equal(""+0);
     n1=await Owner.getBalance();
     await Owner.sendTransaction({
       to: instance.address,
       value: funds,
       gasPrice:0
     });
-    contractBalance=await instance.getBalance();
+    contractBalance=await instance.getBalance(owner);
     console.log("Balance "+contractBalance);
     assert(contractBalance.gt(0));
     n2=await Owner.getBalance();
@@ -77,8 +77,8 @@ describe("HeritageFactory", function() {
     n2=await Owner.getBalance();
     console.log(">N1: "+n1);
     console.log(">n2: "+n2);
-    balance=await instance.getBalance();
-    expect(await instance.getBalance()).equal(""+0);
+    balance=await instance.getBalance(owner);
+    expect(await instance.getBalance(owner)).equal(""+0);
 
    
     await expect(
@@ -104,7 +104,7 @@ describe("HeritageFactory", function() {
     });
 
     await instance.inherit(owner);
-    expect(await instance.getBalance()).equal(""+0);
+    expect(await instance.getBalance(owner)).equal(""+0);
 
     
   });

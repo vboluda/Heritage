@@ -59,10 +59,10 @@ contract HeritageFactory{
     }
 
     // GETTER FOR CONTRACT BALANCE
-  function getBalance()  public view returns(uint)
+  function getBalance(address sender)  public view returns(uint)
   {
     console.log("Get Balance");
-    return address(heritageReferences[msg.sender].heritageContract).balance;
+    return address(heritageReferences[sender].heritageContract).balance;
   }
 
   function update() public {

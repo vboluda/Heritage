@@ -15,7 +15,18 @@ async function main() {
     address:heritageFactory.address,
   };
 
+  const Artifact = JSON.parse(fs.readFileSync('./artifacts/contracts/HeritageFactory.sol/HeritageFactory.json',
+  {encoding:'utf8', flag:'r'}));
+
+
   fs.writeFileSync("../HeritageFactory.def", JSON.stringify(output),{encoding:'utf8'});
+
+  fs.writeFileSync("../dapp/generated/Artifacts.js", "var artifact="+JSON.stringify({
+    HeritageFactory:{
+      abi:Artifact.abi,
+      address:heritageFactory.address
+    }
+  })+";",{encoding:'utf8'});
 
   console.log("Done.");
 }

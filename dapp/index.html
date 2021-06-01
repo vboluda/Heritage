@@ -1,0 +1,53 @@
+<html>
+    <head>
+        <title>Prueba</title>
+        <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+        <script src="generated/Artifacts.js" ></script>
+    </head>
+    <script>
+        async function init(){
+            console.log("Initialization");
+            var eth=window.ethereum;
+            window.web3=new Web3(eth);
+            if(!eth && !eth.isMetamask()){
+                alert("Metamask not installed. Please install Metamask.");
+                return;
+            }
+            // eth.request({ method: 'eth_requestAccounts' }).then((accounts)=>{
+            //     let selector=document.getElementById('sAccounts');
+            //     for(let i=0,sz=accounts.length;i<sz;i++){
+            //         var element=accounts[i];
+            //         var el = document.createElement("option");
+            //         el.textContent = element;
+            //         el.value = element;
+            //         selector.appendChild(el);
+
+            //     }
+            // });
+
+            var accounts=await eth.request({ method: 'eth_requestAccounts' });
+            let selector=document.getElementById('sAccounts');
+            console.log("Retrieve accounts");
+            for(let i=0,sz=accounts.length;i<sz;i++){
+                var element=accounts[i];
+                var balance=await eth.request({ 
+                    method: 'eth_getBalance', 
+                    params:[element]});
+                var el = document.createElement("option");
+                el.textContent = `${element} (${balance/1000000000000000000} eth)`;
+                el.value = element;
+                selector.appendChild(el);
+            }
+            var c= new window.web3.eth.Contract(artifact.HeritageFactory.abi,artifact.HeritageFactory.address)
+            var o=await c.methods.owner().call();
+            let towner=document.getElementById("towner")
+            towner.innerText="Owner: "+o;
+
+        }
+    </script>
+    <body onload="init()">
+        <p><div id="towner"></div></p>
+        <p>Select account to use</p>
+        <select id="sAccounts"/>
+    </body>
+</html>
