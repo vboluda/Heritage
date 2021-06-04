@@ -24,7 +24,13 @@ describe("HeritageFactory", function() {
     const instance = await Contract.deploy();
     
     await instance.deployed();
+    contractBalance=await instance.getBalance(owner);
+    console.log("Balance "+contractBalance);
+    assert(contractBalance.eq(0));
     await instance.createNewHeritageContract(heir,2102400);
+    contractBalance=await instance.getBalance(owner);
+    console.log("Balance "+contractBalance);
+    assert(contractBalance.eq(0));
     
     expect(await instance.getBalance(owner)).equal("0");
   });
